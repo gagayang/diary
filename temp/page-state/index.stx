@@ -1,0 +1,46 @@
+import ReactLynx, { Component } from '@byted-lynx/react-runtime';
+import { SomethingWrongPage } from '@i18n-ecom/seller-lynx-components';
+import { GlobalLoadingStatus } from '@utils/constants';
+import { ReactNode } from 'react';
+import { localI18n } from '@i18n-ecom/lynx-i18n/src/i18n.lepus';
+import { wrongImgBase64 } from '@common/assets/illustrations/content';
+import { ApiResponseError } from '@i18n-ecom/lynx-bridge';
+export interface PageStateProps {
+  renderer: React.ReactElement;
+  loadingStatus: GlobalLoadingStatus;
+  error?: ApiResponseError<unknown>;
+}
+
+export interface PageStateState {}
+
+export class PageState extends Component<PageStateProps, PageStateState> {
+  constructor(props: PageStateProps) {
+    super(props);
+  }
+
+  render(): ReactNode {
+    const { loadingStatus, error } = this.props;
+    const { renderer } = this.props;
+    return (
+      <view>
+        {/* {loadingStatus === GlobalLoadingStatus.LOADING && <ProductInfoSkeleton />} */}
+        {loadingStatus === GlobalLoadingStatus.LOADING && <view>temp</view>}
+        {(loadingStatus === GlobalLoadingStatus.FAILED || loadingStatus === GlobalLoadingStatus.OFF_LINE) && (
+          <SomethingWrongPage
+            className="flex-1"
+            needTitleBar={false}
+            // onRetry={this.initPromotionInfoFetch.bind(this)}
+            onRetry={() => {}}
+            error={error}
+            showButton={true}
+            message={localI18n('SC_error_page_common_title')}
+            subMessage={localI18n('promotion_app_system_error_text')}
+            buttonText={localI18n('SC_retry_btn_common')}
+            imageSrc={wrongImgBase64}
+          />
+        )}
+        {loadingStatus === GlobalLoadingStatus.SUCCESS && renderer}
+      </view>
+    );
+  }
+}

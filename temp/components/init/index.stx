@@ -1,0 +1,25 @@
+import ReactLynx, { Component } from '@byted-lynx/react-runtime';
+import { ReactNode } from 'react';
+
+export interface InitProps {
+  renderer: React.ElementType;
+}
+
+export interface InitState {}
+
+export class Init extends Component<InitProps, InitState> {
+  constructor(props: InitProps) {
+    super(props);
+  }
+
+  componentDidHide(): void {}
+
+  componentDidShow(): void {}
+
+  componentDidMount(): void {}
+
+  render(): ReactNode {
+    const { renderer: R } = this.props;
+    return <R />;
+  }
+}
