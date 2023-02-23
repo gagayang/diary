@@ -10,8 +10,6 @@ https://www.jianshu.com/p/ff6b3008820a
 
 https://segmentfault.com/a/1190000040723381
 
-
-
 ## npm create vite原理
 
 https://juejin.cn/post/7173609541483888670
@@ -45,3 +43,18 @@ https://blog.csdn.net/ayqy42602/article/details/107663187
 ### TTFB 优化
 
 https://www.krseo.com/web/940.html
+
+
+
+1、pnpm介绍：https://juejin.cn/post/6932046455733485575
+
+js相关：
+
+迭代器：https://www.cnblogs.com/wangfupeng1988/p/6532713.html
+
+
+
+
+
+
+-
