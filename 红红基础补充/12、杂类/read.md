@@ -42,9 +42,7 @@ git stash pop 将文件从临时空间pop下来
 
 ```
 
-
 ### 用过哪些设计模式？[重点是知道别人在问啥，知道有这个概念]
-
 
 * 工厂模式：
 
@@ -54,3 +52,13 @@ git stash pop 将文件从临时空间pop下来
 
   * 使用构造函数的方法，即解决了重复实例化的问题，又解决了对象识别的问题，该模式与工厂模式的不同之处在于
   * 直接将属性和方法赋值给 `this`对象;
+
+## 模块化规范有哪些？
+
+https://www.cnblogs.com/echoyya/p/14577243.html
+
+程。
+
+# 手把手教你用npm发布包
+
+https://blog.csdn.net/taoerchun/article/details/82531549
