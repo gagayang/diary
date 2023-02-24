@@ -44,17 +44,12 @@ https://blog.csdn.net/ayqy42602/article/details/107663187
 
 https://www.krseo.com/web/940.html
 
-
-
 1、pnpm介绍：https://juejin.cn/post/6932046455733485575
 
 js相关：
 
 迭代器：https://www.cnblogs.com/wangfupeng1988/p/6532713.html
 
+深入理解垃圾回收机制：
 
-
-
-
-
--
+https://juejin.cn/post/6981588276356317214

@@ -63,7 +63,29 @@ https://www.cnblogs.com/echoyya/p/14577243.html
 
 https://blog.csdn.net/taoerchun/article/details/82531549
 
-
 综合面试题-面试之道
 
 https://juejin.cn/book/6844733763675488269/section/6844733763759374344
+
+
+nginx基础：
+
+https://juejin.cn/post/6844903619465068551
+
+
+
+serviceless普及：
+
+[https://juejin.cn/post/6844904185427673095](https://juejin.cn/post/6844904185427673095) （讲的很浅）
+
+[https://juejin.cn/post/6844903844745330695](https://juejin.cn/post/6844903844745330695) （浅，但是讲的很全很容易懂）
+
+
+
+
+
+
+
+
+
+-
