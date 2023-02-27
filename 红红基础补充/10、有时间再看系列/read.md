@@ -1,17 +1,16 @@
+#### 综合版：https://juejin.cn/book/6844733763675488269/section/6844733763759374344
+
+
 #### 说一下前端权限管理怎么实现
 
 https://blog.csdn.net/weixin_40599109/article/details/113728974
-
-
 
 设计类题型：
 
 https://juejin.cn/post/6844903598707441672#heading-1
 
-
 * requestAnimationFrame（[一个神奇的前端动画 API requestAnimationFrame](https://juejin.cn/post/6991297852462858277 "https://juejin.cn/post/6991297852462858277")）
 * 如何排查内存泄漏问题，面试官可能会问为什么页面越来越卡顿，直至卡死，怎么定位到产生这种现象的源代码（开发环境）？（[一文带你了解如何排查内存泄漏导致的页面卡顿现象](https://juejin.cn/post/6947841638118998029 "https://juejin.cn/post/6947841638118998029")）
-
 
 刷算法网站：
 
@@ -19,20 +18,15 @@ https://github.com/afatcoder/LeetcodeTop
 
 https://github.com/vortesnail/leetcode
 
-
 优雅捕获aync/await异常：
 
 https://juejin.cn/post/6844903998969872392
-
 
 前端简单算法：
 
 https://juejin.cn/post/6847009772500156429
 
-
-
 # Generator实现
-
 
 我们从一个简单的Generator使用实例开始，一步步探究Generator的实现原理：
 
@@ -318,7 +312,3 @@ https://zhuanlan.zhihu.com/p/34453198?group_id=957277540147056640
 https://juejin.cn/post/6986436944913924103
 
 https://juejin.cn/post/6844903971480403976
-
-
-
--
