@@ -1,16 +1,8 @@
-const a = 'u'
-console.log(a)
-
-const object2:any = {
-  a: 1,
-  b: 3
+const cache = {
+  'abc': VNode('abc'),
+  'bbb': VNode('bbb'),
 }
 
-let h: any = {}
+const keys = ['bbb', 'abc']
 
-for (const key in object2) {
-  h[key] = object2[key as keyof typeof object2]
-}
-
-object2.f = 23;
-
+const vnode = cache['bbb']
