@@ -1,25 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <style>
-    h2{
-      color: 'red'
+  <script>
+    class b {
+      constructor(name) {
+        this.name = name;
+        this.instance = null
+      }
+      static get(name) {
+        console.log(this)
+        if (!this.instance) {
+          this.instance = new b(name)
+        }
+        return this.instance
+      }
     }
-  </style>
-  <script src="http://www.baidu.com/jquery.js" defer></script>
-  <script src="http://www.baidu.com//index.js" defer></script>
-  <script src="http://www.baidu.com//index2.js" async></script>
+    const neee = b.get();
+    const neee2 = b.get();
+  </script>
 </head>
+
 <body>
-  <img src="./d.png" alt="">
-<h2>hahh</h2>
-commonjs(CJS) AMD CMD UMD ESmodule
-const jquery = require('jquery')
-import jquery from 'jquery'
-<form action="" enctype=""></form>
+
+  commonjs(CJS) AMD CMD UMD ESmodule
+  const jquery = require('jquery')
+  import jquery from 'jquery'
+
 </body>
+
 </html>
