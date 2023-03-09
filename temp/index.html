@@ -1,36 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script>
-    class b {
-      constructor(name) {
-        this.name = name;
-        this.instance = null
-      }
-      static get(name) {
-        console.log(this)
-        if (!this.instance) {
-          this.instance = new b(name)
-        }
-        return this.instance
-      }
-    }
-    const neee = b.get();
-    const neee2 = b.get();
-  </script>
+  <script src="./temp.js"></script>
 </head>
-
 <body>
-
-  commonjs(CJS) AMD CMD UMD ESmodule
-  const jquery = require('jquery')
-  import jquery from 'jquery'
-
+  <ul></ul>
+<script>
+  const a = '<li>1</li><li>1</li><li>1</li><li>1</li>' // 100
+  const b = createDocumentFragment();
+for (const key in 100) {
+  b += a
+}
+</script>
 </body>
-
 </html>
