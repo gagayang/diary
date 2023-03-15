@@ -2,7 +2,9 @@
 
 # 面向对象三大特性
 
-1、封装demo：结构性比较好
+## 1、封装
+
+封装demo：结构性比较好
 
 ```js
 var film = {
@@ -16,9 +18,11 @@ var film = {
 }
 ```
 
-2、继承：
+## 2、继承：
 
-具体继承方式后面细讲，这里提前讲下Object.create()
+具体继承方式后面细讲，这里提前讲下Object.create()，这里我们先补习一些常用api
+
+### Object.create
 
 const a = Object.create(b)的作用：其实就是新建一个{}，然后把b作为{}的原型返回给a
 
@@ -45,6 +49,25 @@ demo：
 
 ![1678015087516](image/read/1678015087516.png)
 
+当然我们可以可以这么写，让Stu被创建的时候就有了自己的属性：
+
+```js
+const Person = {num: 1, friends: ['wang1']}
+const Stu = Object.create(Person, {
+  time: {
+    writable: true,
+    value: 2323
+  }
+})
+console.log(Stu.num)
+Stu.friends.push('wang2')
+console.log(Person)
+console.log(Stu)
+
+```
+
+![1678528507613](image/read/1678528507613.png)
+
 Object.create是ES5的语法，但是如果它存在兼容问题，该怎么解决呢？
 
 ```js
@@ -62,7 +85,323 @@ var s = {des: 'wang1'};
 var ss = Object.create(s)
 ```
 
-3、多态
+### Object.setPrototypeOf
+
+Object上还有另外一个方法：Object.setPrototypeOf：
+
+```js
+const Person = {num: 1, friends: ['wang1']}
+// const Stu = Object.create(Person, {
+//   time: {
+//     writable: true,
+//     value: 2323
+//   }
+// })
+const s = {
+  time: 444
+}
+const Stu = Object.setPrototypeOf(s, Person)
+console.log(Stu.num)
+Stu.friends.push('wang2')
+console.log(Person)
+console.log(Stu)
+
+```
+
+结果：
+
+![1678533294015](image/read/1678533294015.png)
+
+扩展链接：
+
+setPrototypeOf 与 Object.create区别：https://juejin.cn/post/6844903527941144589
+
+扩展如下案例(该案例可以复习完这篇文章再来看)，【一定要注意编译过后的代码，以及顺序（先继承），再在B上添加实例和静态方法】：
+
+编译前：
+
+```ts
+class A {
+  static getAname = () => {
+    console.log('getAname')
+  }
+}
+
+class B extends A {
+  static getBname = () => {
+    console.log('getBname')
+  }
+  getBBName() {
+    console.log('getBBName')
+  }
+}
+
+B.getAname()
+B.getBname()
+
+```
+
+编译后：
+
+```js
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var A = /** @class */ (function () {
+    function A() {
+    }
+    A.getAname = function () {
+        console.log('getAname');
+    };
+    return A;
+}());
+var B = /** @class */ (function (_super) {
+    __extends(B, _super);
+    function B() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    B.prototype.getBBName = function () {
+        console.log('getBBName');
+    };
+    B.getBname = function () {
+        console.log('getBname');
+    };
+    return B;
+}(A));
+B.getAname();
+B.getBname();
+
+```
+
+### instanceOf
+
+实例被哪个构造函数实例化出来的
+
+```js
+function Person(name) {
+  this.name = name
+  this.friends = ['wang1']
+}
+const p =  new Person(); 
+console.log(p instanceof Person); // true
+```
+
+
+### hasOwnProperty 和 in
+
+hasOwnProperty：
+
+用于判断自己的"构造函数"或者"被继承的构造函数"上的属性或者方法是否存在，原型（包括整个原型链）上的属性和方法以及构造函数上的静态属性和方法都不包含
+
+in：
+
+在hasOwnProperty基础上，会包含自身原型和被继承的原型上的属性和方法，原型（包括整个原型链）上的属性和方法以及构造函数上的静态属性和方法都不包含
+
+```js
+function Person(name) {
+  this.name = name
+  this.friends = ['wang1']
+}
+Person.prototype.des = 'des';
+Person.staticName = 'staticName';
+Person.staticMethods = () => {
+  console.log('staticMethods');
+}
+function Stu(num, name) {
+  this.num = num;
+  Person.call(this, name)
+}
+Stu.prototype = Object.create(Person.prototype);
+Stu.prototype.getAge = () => {
+  conosole.log('age~')
+}
+Stu.prototype.constructor = Stu;
+Stu.staticNameStu = 'staticNameStu';
+Stu.staticMethodsStu = () => {
+  console.log('staticMethodStu');
+}
+var p1 = new Stu(1001, 'wang1');
+
+console.log('----')
+console.log(p1.hasOwnProperty('name'));  // true
+console.log(p1.hasOwnProperty('name1')); // false
+console.log(p1.hasOwnProperty('friends')); // true
+console.log(p1.hasOwnProperty('num')); // true
+console.log(p1.hasOwnProperty('des')); // false
+console.log(p1.hasOwnProperty('getAge')); // false
+console.log(p1.hasOwnProperty('staticName')); // false
+console.log(p1.hasOwnProperty('staticMethods')); // false
+console.log(p1.hasOwnProperty('staticNameStu')); // false
+console.log(p1.hasOwnProperty('staticMethodsStu')); // false
+console.log('----')
+console.log('name' in p1);  // true
+console.log('name1' in p1);  // false
+console.log('friends' in p1); // true
+console.log('num' in p1); // true
+console.log('des' in p1); // true
+console.log('getAge' in p1); // true
+console.log('staticName' in p1); // false
+console.log('staticMethods' in p1); // false
+console.log('staticNameStu' in p1); // false
+console.log('staticMethodsStu' in p1); // false
+console.log('----')
+
+for (const key in Stu) {
+  console.log('key: ' + key) // staticNameStu, staticMethodsStu
+}
+console.log('----')
+
+for (const key in p1) {
+  console.log('key: ' + key) // num,name,friends,geAge,constructor,des
+}
+console.log('----')
+
+Object.keys(Stu).forEach(key => {
+  console.log(key) // staticNameStu, staticMethodsStu
+})
+console.log('----')
+
+Object.keys(p1).forEach(key => {
+  console.log(key) // num, name, friends
+})
+
+```
+
+### for in 和 Object.keys
+
+#### ES5的效果：
+
+##### 【遍历构造函数】：
+
+如上打印，只会遍历到当前构造函数的静态属性和方法，不包含继承的静态的属性和方法， 以及内置的静态属性和方法，我们打印看下：
+
+![1678587948749](image/read/1678587948749.png)
+
+上面的staticNameStu, staticMethodsStu属于p1实例构造函数，也就是p1原型的constructor上的属性和方法，但是我们看到当前的静态属性和方法还有arguments，caller，length等继承到当前构造函数Stu身上的静态属性和方法并没有打印, 所以在遍历构造函数的情况，for in和Object.keys表现一致，但是遍历实例就有差别了。
+
+##### 【遍历实例】：
+
+forin和Object.keys都会沿着原型链寻找，forin会找到实例+静态属性和方法，而Object.keys只会遍历实例属性和方法。
+
+我们经常看到这样的写法：
+
+```js
+for (const key in object) {
+  if (Object.hasOwnProperty.call(object, key)) {
+    const element = object[key];
+      //...
+  }
+}
+```
+
+这种写法，如果是遍历构造函数就没有必要写if，如果是遍历实例，forin和object.keys都要加if判读
+
+#### ES6的效果：
+
+```js
+class Person {
+  'personceshi'= 'person-ceshi'
+  static PersonName = 'person-name'
+}
+
+class Stu extends Person {
+  ceshi = 'ceshi'
+  static StuName = 'stu-name'
+  static getStuName = () => {
+    console.log('getStuName')
+  }
+}
+
+const p1 = new Stu();
+console.log(p1.hasOwnProperty('PersonName')); // false
+console.log(p1.hasOwnProperty('StuName')); // false
+console.log('PersonName' in p1); // false
+console.log('StuName' in p1); // false
+
+for (const key in p1) {
+  console.log('key: ' + key) // ceshi , personceshi
+}
+console.log('-----')
+for (const key in Stu) {
+  console.log('key: ' + key) // StuName, getStuName,  PersonName
+}
+console.log('-----')
+Object.keys(p1).forEach(key => {
+  console.log(key) //  ceshi , personceshi
+})
+console.log('-----')
+Object.keys(Stu).forEach(key => {
+  console.log(key) //  StuName, getStuName
+})
+```
+
+##### 【遍历构造函数】：
+
+forin会沿着原型链寻找所以的静态属性和方法，Object.keys只会遍历当前构造函数的静态属性和方法，不会包含实例属性和方法
+
+##### 【遍历实例】：
+
+只会找实例属性和方法，并且是包括原型链的。但是不会包含静态属性和方法
+
+#### 结论：
+
+const p1 = new Stu(); p1:实例，Stu：构造函数
+
+| 属性+方法   | forin                                                 | object.keys                  |
+| ----------- | ----------------------------------------------------- | ---------------------------- |
+| es5实例     | 实例属性/方法（自己+原型链）<br />还打印了constructor | 实例属性/方法（自己+原型链） |
+| es5构造函数 | 静态属性/方法（自己）                                 | 静态属性/方法（自己）        |
+| es6实例     | 实例属性/方法（自己+原型链）                          | 实例属性/方法（自己+原型链） |
+| es6构造函数 | 静态属性/方法（自己+原型链）                          | 静态属性/方法（自己）        |
+
+实际工作中注意点：
+
+1、当我们需要对实例/构造函数遍历时候，一般加上如下的if判断要保险一些，主要是记不清：
+
+```js
+for (const key in object) {
+  if (Object.hasOwnProperty.call(object, key)) {
+    const element = object[key];
+      //...
+  }
+}
+```
+
+2、对ES5构造函数进行遍历，并没有往上找，主要是比如Stu，它作为一个函数，其实是当作对象被遍历，所以更不会去找Person来被遍历，所以不存在遍历Stu而得到Person上的静态属性/方法，除非我们手动的赋值：
+
+```js
+for (const key in Person) {
+  Stu[key] = Person[key]
+}
+```
+
+但是实际场景，我们没必要这么做，会在子类上为这些属性/方法开辟没必要的重复的空间，我们用Stu的静态属性，直接Stu.staticMethods...,使用Person的静态属性，直接Person.staticMethods就行，如果非要在Stu上调用，可以这么实现：
+
+```js
+Stu.__proto__ = Person
+```
+
+类似的实现都可以：比如：
+
+```js
+Object.setPrototypeOf(Stu, People)
+```
+
+只要能实现构造函数之间的原型链继承就行了（注意不是实例原型这边的原型链）
+
+## 3、多态
 
 同一个操作有不同的行为
 
@@ -73,10 +412,10 @@ function Person (name,age,show){
   this.show = show
 }
 var p1 = new Person('wang1', 23, function() {
-  console.log(this.name)
+  console.log(this.name) // 飞
 })
 var p2 = new Person('wang2', 34, function(){
-  console.log(this.age)
+  console.log(this.age) // 爬
 }) 
 
 p1.show(); // wang1
@@ -347,7 +686,7 @@ console.log(p1.constructor) // [Function: Stu]
 
 这种继承存在两点问题：
 
-- Stu的实例只能用到Person原型上的属性/方法，Person实例上的属性/方法，他是不能继承的
+- Stu的实例只能用到Person原型上的属性/方法，Person构造函数上的属性/方法，他是不能继承的
 - Stu.prototype.constructor = Stu看似修正了Stu的构造函数，但是Person和Stu的Stu.prototype是引用关系，只要构造函数指向一个，另外一个指向就是错的，这是一个无解的问题
 
 所以这种设计模式，在使用的时候一定要考虑清楚业务场景，避免掉坑
@@ -403,7 +742,7 @@ console.log(p2.friends) // [ 'wang', 'lisi' ]
 - 无法传递参数给父构造函数
 - 父构造函数上的引用属性存在共享问题
 
-## 3、借用构造函数继承（寄生式继承）
+## 3、借用构造函数继承（别称：寄生式继承,冒充对象继承）
 
 目的是解决原型链继承中传参问题
 
@@ -455,9 +794,7 @@ Stu { num: 1001 }
 
 明显第二种打印结果我们可以直观看出这个this就是Stu，上面第一种打印，其实就是Person它作为构造函数，里面的运行时其实并不像我们看到那么简单（直观），所以要用call来绑定上下文+借属性/方法
 
-## 4、寄生组合继承
-
-解决了以上所有继承形式存在的问题，数据共享的问题也是变相的得到了解决
+借用构造函数，Person把自己的属性/方法，借给了（copy）Stu，变相让数据共享问题得到了解决。
 
 ```js
 function Person(name) {
@@ -483,4 +820,101 @@ var p1 = new Stu(1001, 'wang1');
 - 借用构造函数，就可以实现子上面深拷贝了一份夫构造函数上的属性和方法，但是不能解决子希望继承父的原型上的属性和方法
 - 原型链继承解决了子可以继承父的原型上的属性和方法的问题，同时也继承了父的构造函数上的属性和方法，那么问题来了，岂不是和借用构造函数的使用冲突了？因为构造函数已经克隆了一份属性和方法到自己身上，而这里原型链继承又来了一份，其实不冲突，的确是两份，但是借用构造函数是放在了Stu的构造函数上，原型链继承是放在了Stu的原型上，当我们通过15行执行的时候，因为属性和方法是通过就近原则方法，所以在Stu的构造函数上就已经获得了对应的属性和方法，原型上的就不再被访问（被晾在那里了），也就是说第三行的数组friends，其实是被拷贝（深拷贝）到了Stu的构造函数上，所以不存在数据共享问题了
 - 上面原型链+借用构造函数这么麻烦，为啥不用原型式+借用构造函数呢？原型式不就只继承原型而不公用构造函数吗？因为原型式继承的构造函数修正问题是一个无解的问题，具体可看上面的原型式继承
--
+
+## 4、寄生组合继承
+
+上面借用构造函数的方式其实已经解决了传参，数据共享，继承的问题，但是有一个明显的缺陷，就是Person.call会执行一次Person函数，后面new Person还会再执行一次Person函数，如果这个函数体很大，其实也是存在性能损耗的，所以出现了第四种继承方案：寄生组合继承
+
+```js
+function Person(name) {
+  this.name = name
+  this.friends = ['wang1']
+}
+Person.prototype.des = 'des';
+function Stu(num, name) {
+  this.num = num;
+  // 借用构造函数
+  Person.call(this, name)
+}
+function Middle () {
+  // 这里如果有属性方法，就只属于Stu
+}
+// 让Middle能够继承Person原型上的属性和方法
+Middle.prototype = Person.prototype;
+// 再让Stu继承Middle的实例
+// 这种方式相对于直接new Person，可以避免Person被调用两次
+// 但是这里就有一个比较点，到底是执行Middle构造函数浪费性能还是执行Person构造函数浪费性能
+// 因为Person是真正要被继承的，他上面肯定会实现很多有价值的属性和方法，而Middle只是拿来避免Person被调用两次而出现的【过渡构造函数】
+// 所以Middle构造函数的使用上，我们要遵循一些约定：
+// 第一点：Middle上不要放（甚至不放）很多有价值的属性和方法，可以放到Person或者Stu上，要让Middle的使用更加纯粹
+// 第二点：Middle作为构造函数，它其实也是可以实例化的，但是就像上面说的，它只是一个【过渡构造函数】，上面都没挂在有用的属性和方法，所以我们不要用它去实例化
+Stu.prototype = new Middle();
+// 修正构造函数，避免父构造函数实例化和子实例公用了父构造函数，从而有共享问题
+Stu.prototype.constructor = Stu
+var p1 = new Stu(1001, 'wang1');
+
+```
+
+以上实现20-22行也说明清楚了问题，我们可以改造如下：
+
+```js
+function Person(name) {
+  this.name = name
+  this.friends = ['wang1']
+}
+Person.prototype.des = 'des';
+function Stu(num, name) {
+  this.num = num;
+  Person.call(this, name)
+}
+Stu.prototype.getAge = () => {
+  conosole.log('age~')
+}
+Stu.prototype = Object.create(Person.prototype);
+Stu.prototype.constructor = Stu;
+var p1 = new Stu(1001, 'wang1');
+console.log(p1)
+```
+
+结果：
+
+![1678534694919](image/read/1678534694919.png)
+
+以上写法还不是最终写法，我们在前面已经介绍过Object.setPrototypeOf，如果Stu的原型上没有属性方法，那么用Object.create直接替换掉Stu的原型，这个是ok的，但是当我们在Stu的原型上有属性和方法，我们希望保留，而不是简单的【替换掉原来的原型】，那么就应该用Object.setPrototypeOf，他可以保留Stu原型的属性和方法:
+
+```js
+function Person(name) {
+  this.name = name
+  this.friends = ['wang1']
+}
+Person.prototype.des = 'des';
+function Stu(num, name) {
+  this.num = num;
+  Person.call(this, name)
+}
+Stu.prototype.getAge = () => {
+  console.log('age~')
+}
+
+const StuNew = Object.setPrototypeOf(Stu, Person.prototype);
+var p1 = new StuNew(1001, 'wang1');
+console.log(p1)
+
+```
+
+结果：
+
+![1678534621476](image/read/1678534621476.png)
+
+可以看出，Object.setPrototypeOf其实就是保留了Stu的原型，并继承了Person原型的能力。Object.setPrototypeOf本质就是：
+
+Stu.prototype.__proto\_\_ = Person.prototype，也可以换成：
+
+p1.\_\_proto\_\_.\_\_proto\_\_ = Person.prototype
+
+这就是Object.setPrototypeOf能够保留当前实例原型能力的原因
+
+
+# Object.setPrototypeOf实现原理
+
+es6实现的api

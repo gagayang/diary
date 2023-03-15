@@ -1,21 +1,12 @@
-function Parent() {
-  this.name = 'arzh'
+function Person(name) {
+  this.name = name
+  this.friends = ['wang1']
 }
-
-Parent.prototype.getName = function () {
-  console.log(this.name)
+Person.prototype.des = 'des';
+function Stu(num, name) {
+  this.num = num;
+  Person.call(this, name)
 }
-
-function Child() {
-
-}
-
-//主要精髓所在
-Child.prototype = new Parent()
-// Child.prototype.constructor = Child
-
-var arzhChild = new Child()
-
-// arzhChild.getName() // 'arzh'
-
-console.log(Child.prototype.constructor)
+Stu.prototype = Object.create(Person.prototype);
+Stu.prototype.constructor = Stu;
+var p1 = new Stu(1001, 'wang1');
