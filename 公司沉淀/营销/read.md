@@ -7,3 +7,17 @@
 关于这个if else的判断逻辑，大部分情况前端 后端在做这些实验的时候，实验结束都不会去删除这些代码，万一哪天实验又重开呢，还有一个问题，这些实验的配置就应该放到一个平台去管理
 
 那么ab测有没有好的解决办法？
+
+
+
+
+scm编译产物莫名其妙多了一个产物：https://lf-cdn-tos.bytescm.com/obj/static/living_room_campaign/pages/webpack-stats-reports-1683613141345.mp.gz
+
+https://cloud.bytedance.net/scm-cdn/log/4454633，
+
+同样的commit，前几天没有，最近几天就出现了，是因为这个产物是scm编译后会上传到maive平台，然后再删除这个分析包，但是现在maive平台停用，这个gz产物得不到删除。解决办法是这个项目aec.config.ts配置maive：false
+
+
+代码冻结后怎么改动bug发布?
+
+fix的分支往火车自动创建的release分支提MR，手动合并，再次运行火车流水线

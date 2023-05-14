@@ -1,0 +1,70 @@
+{
+  "name": "seller-app-lynx-promotion",
+  "version": "1.0.0",
+  "description": "Project created by Eden",
+  "author": "yanzhiru",
+  "scripts": {
+    "start": "lynx-speedy dev -c configs/speedy.config.js",
+    "build": "lynx-speedy build -c configs/speedy.config.js",
+    "ferry": "yarn mlynx-ferry",
+    "genLevel": "slardar-alarm-cli"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@byted-lynx/hdt": "1.0.11",
+    "@byted-lynx/react-runtime": "2.0.4",
+    "@i18n-ecom/lynx-bridge": "workspace:*",
+    "@i18n-ecom/lynx-i18n": "workspace:*",
+    "@i18n-ecom/lynx-monitor": "1.0.1",
+    "@i18n-ecom/lynx-mpa": "1.0.0",
+    "@i18n-ecom/lynx-utils": "1.0.2",
+    "@i18n-ecom/mux-icons": "0.1.0",
+    "@i18n-ecom/mux-lynx-components": "1.0.4-beta.2",
+    "@i18n-ecom/seller-lynx-components": "1.0.4-beta.6",
+    "@i18n-ecom/universal-utils": "1.0.0",
+    "@ies/cora-speedy": "latest",
+    "@ies/eden-build": "^2.8.2",
+    "@rematch/core": "^2.0.1",
+    "big.js": "^6.2.1",
+    "lodash-es": "^4.17.21",
+    "mitt": "^3.0.0",
+    "moment": "2.29.1",
+    "moment-timezone": "^0.5.33",
+    "redux": "^4.1.0",
+    "redux-logger": "^3.0.6",
+    "rollup": "2.70",
+    "seller-app-lynx-promotion": "1.0.0"
+  },
+  "devDependencies": {
+    "@byted-lynx/build-toolbox-compiler": "^1.0.5",
+    "@byted-lynx/eslint-plugin-react-lynx": "^1.0.5",
+    "@byted-lynx/hdt": "^1.0.11",
+    "@byted-lynx/lynx-speedy": "2.14.0",
+    "@byted-lynx/speedy-plugins": "1.0.0-alpha.1",
+    "@byted-lynx/typings": "^1.0.8",
+    "@i18n-ecom/lynx-configs": "1.0.0",
+    "@types/big.js": "^6.1.6",
+    "eslint": "^7.5.0",
+    "prettier": "^2.2.1",
+    "rollup": "2.70",
+    "seller-app-lynx-promotion": "1.0.0",
+    "typescript": "^4.2.3"
+  },
+  "i18n": {
+    "locales": [
+      "en",
+      "id-ID",
+      "ms-MY",
+      "th-TH",
+      "vi-VN",
+      "pt-BR",
+      "es"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint .commitlintrc.js -E HUSKY_GIT_PARAMS",
+      "pre-push": "cd ../../../ && DEBUG=eslint:cli-engine npx eslint --fix --cache --quiet $(git diff --diff-filter=ACMR --name-only $(git merge-base $(git rev-parse --abbrev-ref HEAD) $([[ $(git branch -a | grep -w remotes/origin/$(git rev-parse --abbrev-ref HEAD)) ]] && echo remotes/origin/$(git rev-parse --abbrev-ref HEAD) || echo master)) | grep -E '.(ts|tsx)$' | xargs)"
+    }
+  }
+}

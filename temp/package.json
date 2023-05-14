@@ -4,6 +4,7 @@
   "description": "",
   "main": "temp.js",
   "dependencies": {
+    "moment": "^2.20.1",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
