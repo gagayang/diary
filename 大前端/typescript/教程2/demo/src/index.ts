@@ -2,6 +2,7 @@
 import List from './List'
 import LinkedList from './2LinkedList';
 import ArrayList from './2ArrayList';
+import { getSourceMapRange } from 'typescript';
 class Vechile {
   static count: number = 3;
   public brand: string;// 品牌
@@ -197,3 +198,16 @@ let lasttotal = cust.rent<Vechile>(vechileList);
 console.log("lasttotal:", lasttotal)
 
 export { }
+
+
+function fn3(a: string, b: string): string;
+function fn3(a: number, b: number): number;
+function fn3(a: number | string, b: number | string): number | string {
+  if (typeof a === 'number' && typeof b == 'number') {
+    return a * b
+  } else {
+    return a + b
+  }
+}
+const d = fn3('d', '5');
+console.log(d)

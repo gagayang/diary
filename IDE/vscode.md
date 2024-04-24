@@ -13,3 +13,10 @@
 配置推荐
 
 [https://zhuanlan.zhihu.com/p/113222681](https://zhuanlan.zhihu.com/p/113222681)
+
+
+# 好用插件：
+
+## typescript提示：
+
+error lens
