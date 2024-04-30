@@ -284,7 +284,7 @@ demo：
 
 ![1714139430441](image/vue3新变化/1714139430441.png)
 
-## 13 
+## 13
 
 动态组件component， 比如一个tab组件，就可以用v-if去判断用哪个组件，也可以通过动态组件：
 
@@ -381,8 +381,7 @@ defineAsyncComponent的组件会在webpack打包时候被单独打包，他就�
 
 一般分包都是通过路由去按照页面维度去分，如果需要按照组件维度去分才这么做，很少这么做。
 
-
-Suspense 
+Suspense
 
 借鉴了react的思想
 
@@ -400,7 +399,6 @@ Suspense
 ```
 
 suspense  代替了loadingComponent
-
 
 refs:获取实例
 
@@ -424,11 +422,9 @@ methods: {
 
 ![1714294120768](image/vue3新变化/1714294120768.png)
 
-
 生命周期
 
 ![1714294474944](image/vue3新变化/1714294474944.png)
-
 
 v-model：组件上使用v-model：这种写法只是更加优雅：
 
@@ -566,7 +562,6 @@ HyInput.vue:
 </style>
 ```
 
-
 ## 14
 
 动画
@@ -592,7 +587,6 @@ HyInput.vue:
   }
 </style>
 ```
-
 
 ## 15
 
@@ -778,18 +772,652 @@ setup() {
     }
 ```
 
+## 16
+
+继续讲解ref相关、computed、watch
+
+以下这些api是辅助api，导入方式都是从vue中导入，shallow都是浅层次的实现，比如嵌套对象，只会对第一层实现
 
 ![1714310281199](image/vue3新变化/1714310281199.png)
 
+toRefs传入的肯定是reactive，然后是将整个reactive转成解构后的ref
+
 ![1714310312889](image/vue3新变化/1714310312889.png)
+
+toRef是将reactive中某个key转成ref，目的是为了性能：
+
+```js
+export default {
+    setup() {
+      const info = reactive({name: "why", age: 18});
+      // 1.toRefs: 将reactive对象中的所有属性都转成ref, 建立链接
+      // let { name, age } = toRefs(info);
+      // 2.toRef: 对其中一个属性进行转换ref, 建立链接
+      let { name } = info;
+      let age = toRef(info, "age");
+
+      const changeAge = () => {
+        age.value++;
+      }
+
+      return {
+        name,
+        age,
+        changeAge
+      }
+    }
+  }
+```
 
 ![1714310353958](image/vue3新变化/1714310353958.png)
 
+customRef: 这个ref是自定义ref特性，一般写源码才用得着，这里不做笔记了。
+
+computed：
+
+他在setup中，其实就和原来vue2使用思路一样，组合出一个新的属性然后导出给UI使用，如果不使用computed，而是直接给setup return 一个const  fullname = firstName + lastName，这个fullname是不具有响应式的，所以要用computed
+
+```js
+export default {
+    setup() {
+      const firstName = ref("Kobe");
+      const lastName = ref("Bryant");
+
+      // 1.用法一: 传入一个getter函数
+      // computed的返回值是一个ref对象
+      const fullName = computed(() => firstName.value + " " + lastName.value);
+
+      // 2.用法二: 传入一个对象, 对象包含getter/setter
+      const fullName = computed({
+        get: () => firstName.value + " " + lastName.value,
+        set(newValue) {
+          const names = newValue.split(" ");
+          firstName.value = names[0];
+          lastName.value = names[1];
+        }
+      });
+
+      const changeName = () => {
+        // firstName.value = "James"
+        fullName.value = "coder why";
+      }
+
+      return {
+        fullName,
+        changeName
+      }
+    }
+  }
+```
+
+watchEffect：用法思路和vue2一样，只是写到了setup中：以下这个demo演示了watchEffect和停止watchEffect，以及清除副作用（比如发起网络请求，中途依赖的name，age再次发生变化，就可以取消上一次的请求)
+
+```js
+export default {
+    setup() {
+      // watchEffect: 自动收集响应式的依赖
+      const name = ref("why");
+      const age = ref(18);
+
+      const stop = watchEffect((onInvalidate) => {
+        const timer = setTimeout(() => {
+          console.log("网络请求成功~");
+        }, 2000)
+
+        // 根据name和age两个变量发送网络请求
+        onInvalidate(() => {
+          // 在这个函数中清除额外的副作用
+          // request.cancel()
+          clearTimeout(timer);
+          console.log("onInvalidate");
+        })
+        console.log("name:", name.value, "age:", age.value);
+      });
+
+      const changeName = () => name.value = "kobe"
+      const changeAge = () => {
+        age.value++;
+        if (age.value > 25) {
+          stop();
+        }
+      }
+
+      return {
+        name,
+        age,
+        changeName,
+        changeAge
+      }
+    }
+  }
+```
+
+ref使用：和react中ref，vue2中的ref一个道理：
+
+```js
+<template>
+  <div>
+    <h2 ref="title">哈哈哈</h2>
+  </div>
+</template>
+
+<script>
+  import { ref, watchEffect } from 'vue';
+
+  export default {
+    setup() {
+      const title = ref(null);
+
+      watchEffect(() => {
+        console.log(title.value);
+      }, {
+        flush: "post"
+      })
+
+      return {
+        title
+      }
+    }
+  }
+</script>
+
+<style scoped>
+
+</style>
+```
+
+这里有一个flash的配置项，默认watchEffect是立即执行：
+
+![1714387757565](image/vue3新变化/1714387757565.png)
+
+watch：和vue2watch一个道理
+
+他能够侦听ref、reactive、get函数，还有返回值，侦听ref返回的是value，而reactive返回的还是reactive，如果想返回value，可以像26、27行一样把reactive解构后再组装成getter作为第一个参数。
+
+```js
+<template>
+  <div>
+    <h2 ref="title">{{info.name}}</h2>
+    <button @click="changeData">修改数据</button>
+  </div>
+</template>
+
+<script>
+  import { ref, reactive, watch } from 'vue';
+
+  export default {
+    setup() {
+      const info = reactive({name: "why", age: 18});
+
+      // 1.侦听watch时,传入一个getter函数
+      watch(() => info.name, (newValue, oldValue) => {
+        console.log("newValue:", newValue, "oldValue:", oldValue);
+      })
+
+      // 2.传入一个可响应式对象: reactive对象/ref对象
+      // 情况一: reactive对象获取到的newValue和oldValue本身都是reactive对象
+      // watch(info, (newValue, oldValue) => {
+      //   console.log("newValue:", newValue, "oldValue:", oldValue);
+      // })
+      // 如果希望newValue和oldValue是一个普通的对象
+      watch(() => {
+        return {...info}
+      }, (newValue, oldValue) => {
+        console.log("newValue:", newValue, "oldValue:", oldValue);
+      })
+      // 情况二: ref对象获取newValue和oldValue是value值的本身
+      // const name = ref("why");
+      // watch(name, (newValue, oldValue) => {
+      //   console.log("newValue:", newValue, "oldValue:", oldValue);
+      // })
+
+      const changeData = () => {
+        info.name = "kobe";
+      }
+
+      return {
+        changeData,
+        info
+      }
+    }
+  }
+</script>
+
+<style scoped>
+
+</style>
+```
+
+watch监听多个：
+
+```js
+  // 1.定义可响应式的对象
+      const info = reactive({name: "why", age: 18});
+      const name = ref("why");
+
+      // 2.侦听器watch
+      watch([() => ({...info}), name], ([newInfo, newName], [oldInfo, oldName]) => {
+        console.log(newInfo, newName, oldInfo, oldName);
+      })
+```
+
+深度监听:
+
+响应式数据默认就是深度监听
+
+原始数据默认不是深度
+
+```js
+// 1.定义可响应式的对象
+      const info = reactive({
+        name: "why", 
+        age: 18,
+        friend: {
+          name: "kobe"
+        }
+      });
+
+      // 2.侦听器watch
+      watch(() => ({...info}), (newInfo, oldInfo) => {
+        console.log(newInfo, oldInfo);
+      }, {
+        deep: true,
+        immediate: true
+      })
+```
+
+## 17
+
+生命周期、provide/inject
+
+```js
+<script>
+  import { onMounted, onUpdated, onUnmounted, ref } from 'vue';
+
+  export default {
+    setup() {
+      const counter = ref(0);
+      const increment = () => counter.value++
+
+      onMounted(() => {
+        console.log("App Mounted1");
+      })
+      onMounted(() => {
+        console.log("App Mounted2");
+      })
+      onUpdated(() => {
+        console.log("App onUpdated");
+      })
+      onUnmounted(() => {
+        console.log("App onUnmounted");
+      })
+
+      return {
+        counter,
+        increment
+      }
+    }
+  }
+</script>
+```
+
+生命周期可以重复调用
+
+![1714389603391](image/vue3新变化/1714389603391.png)
+
+除了beforeCreate和created，其他钩子都是一一对应的，其中beforeCreate和created其实就是在setup中写就代替了，并且setup的执行其实比beforeCreate和created更早。
+
+provide和iniject：
+
+父：
+
+```js
+import { provide, ref, readonly } from 'vue';
+setup() {
+      const name = ref("coderwhy");
+      let counter = ref(100);
+
+      provide("name", readonly(name));
+      provide("counter", readonly(counter));
+
+      const increment = () => counter.value++;
+
+      return {
+        increment,
+        counter
+      }
+    }
+```
+
+子：
+
+```js
+  import { inject } from 'vue';
+setup() {
+      const name = inject("name");
+      const counter = inject("counter");
+
+      const homeIncrement = () => counter.value++
+
+      return {
+        name,
+        counter,
+        homeIncrement
+      }
+    }
+```
+
+一般提供的数据是不让子组件改动的，所以上面的父通过readonly进行了包裹
+
+setup顶层编写：
+
+这个视频是2022年左右录制，不知道现在2024年这个实验性特性是否变成正式特性，并且写法是否是如下，实际开发的时候再看看
+
+```js
+<template>
+  <div>
+    <h2>当前计数: {{counter}}</h2>
+    <button @click="increment">+1</button>
+
+    <hello-world message="呵呵呵" @increment="getCounter"></hello-world>
+  </div>
+</template>
+
+<script setup>
+  import { ref } from 'vue';
+  import HelloWorld from './HelloWorld.vue';
+
+  const counter = ref(0);
+  const increment = () => counter.value++;
+
+  const getCounter = (payload) => {
+    console.log(payload);
+  }
+</script>
+
+<style scoped>
+
+</style>
+```
+
+2024年4月再看，这个setup顶层使用，已经是正式功能：
+
+https://cn.vuejs.org/api/sfc-script-setup.html#script-setup
+
+以上就是composition api的全部内容
+
+在vue中写UI，一般有三种方式：
+
+1、template中写，最好写这种
+
+2、写到render函数中，类似react的写法，但是写法上有游区别，建议也少些
+
+3、直接写h函数，类似react的createElement，这个写起来很累，读起来更累
+
+## 18
+
+自定义指令、teleport、插件
+
+自定义指令：
+
+局部：
+
+```js
+<template>
+  <div>
+    <input type="text" v-focus>
+  </div>
+</template>
+
+<script>
+  export default {
+    // 局部指令
+    directives: {
+      focus: {
+        mounted(el, bindings, vnode, preVnode) {
+          console.log("focus mounted");
+          el.focus();
+        }
+      }
+    }
+  }
+</script>
+
+<style scoped>
+
+</style>
+```
+
+全局：
+
+```js
+const app = createApp(App);
+app.directive("focus", {
+  mounted(el, bindings, vnode, preVnode) {
+    console.log("focus mounted");
+    el.focus();
+  }
+})
+```
+
+指令生命周期：
+
+![1714395441427](image/vue3新变化/1714395441427.png)
+
+```js
+<template>
+  <div>
+    <button v-if="counter < 2" v-why.aaaa.bbbb="'coderwhy'" @click="increment">当前计数: {{counter}}</button>
+  </div>
+</template>
+
+<script>
+  import { ref } from "vue";
+
+  export default {
+    // 局部指令
+    directives: {
+      why: {
+        created(el, bindings, vnode, preVnode) {
+          console.log("why created", el, bindings, vnode, preVnode);
+          console.log(bindings.value); // coderwhy
+          console.log(bindings.modifiers); // {aaaa: true, bbbb: true}
+        },
+        beforeMount() {
+          console.log("why beforeMount");
+        },
+        mounted() {
+          console.log("why mounted");
+        },
+        beforeUpdate() {
+          console.log("why beforeUpdate");
+        },
+        updated() {
+          console.log("why updated");
+        },
+        beforeUnmount() {
+          console.log("why beforeUnmount");
+        },
+        unmounted() {
+          console.log("why unmounted");
+        }
+      }
+    },
+    setup() {
+      const counter = ref(0);
+      const increment = () => counter.value++;
+
+      return {
+        counter,
+        increment
+      }
+    }
+  }
+</script>
+
+<style scoped>
+
+</style>
+```
+
+通过自定义指令搞一个时间格式化指令：
+
+format-time.js：
+
+```js
+import dayjs from 'dayjs';
+
+export default function(app) {
+  app.directive("format-time", {
+    created(el, bindings) {
+      bindings.formatString = "YYYY-MM-DD HH:mm:ss";
+      if (bindings.value) {
+        bindings.formatString = bindings.value;
+      }
+    },
+    mounted(el, bindings) {
+      const textContent = el.textContent;
+      let timestamp = parseInt(textContent);
+      if (textContent.length === 10) {
+        timestamp = timestamp * 1000
+      }
+      el.textContent = dayjs(timestamp).format(bindings.formatString);
+    }
+  })
+}
+```
+
+全局注册：
+
+```js
+const app = createApp(App);
+
+registerDirectives(app);
+```
+
+使用：
+
+```js
+<template>
+  <h2 v-format-time="'YYYY/MM/DD'">{{timestamp}}</h2>
+  <h2 v-format-time>{{timestamp}}</h2>
+</template>
+
+<script>
+  export default {
+    setup() {
+      const timestamp = 1624452193;
+      return {
+        timestamp
+      }
+    }
+  }
+</script>
+```
+
+teleport：
+
+![1714396648858](image/vue3新变化/1714396648858.png)
+
+根节点有一个id="why"的元素：
+
+```js
+<template>
+  <div class="app">
+    <teleport to="#why">
+      <h2>当前计数</h2>
+      <button>+1</button>
+      <hello-world></hello-world>
+    </teleport>
+
+    <teleport to="#why">
+      <span>呵呵呵呵</span>
+    </teleport>
+  </div>
+</template>
+```
+
+多个就是append
+
+插件：
+
+![1714397043176](image/vue3新变化/1714397043176.png)
+
+plugins_object.js：
+
+```js
+export default {
+  install(app) {
+    app.config.globalProperties.$name = "coderwhy"
+  }
+}
+```
+
+注册：
+
+```js
+const app = createApp(App);
+app.use(pluginObject);
+// vue2中任一data、methods中都可以通过this.$name拿到
+// vue3 setup中去拿比较麻烦：
+ setup() {
+      const instance = getCurrentInstance();
+      console.log(instance.appContext.config.globalProperties.$name);
+    },
+```
 
 
-16
 
-继续compostion 
+源码讲解:
+
+![1714475388941](image/vue3新变化/1714475388941.png)
+
+从下面可以看出这个三大模块，其中渲染系统、响应式更能够算是vue的核心，编译器（compiler)其实不算vue核心，因为vue也是交给@vue/compiler-sfc来编译的，编译这部分也是打包中的操作，并不是跑在浏览器上，而渲染系统和响应式会运行在浏览器上，所以一般提到vue的核心，其实主要就是渲染模块和响应式。
+
+![1714475601476](image/vue3新变化/1714475601476.png)
+
+渲染又主要包含h函数、mount、patch（diff vnode)
+
+vue的模版语法编译完成后，就变成了h函数，自己写vue源码，就是从h函数开始
+
+
+## 19 
+
+这个视频对响应式原理的深入理解有帮助
+
+继续写一个vue3的demo源码实现
+
+![1714480497787](image/vue3新变化/1714480497787.png)
+
+有一个小点提示下：
+
+```js
+
+function reactive(raw) {
+  return new Proxy(raw, {
+    get(target, key) {
+      const dep = getDep(target, key);
+      dep.depend();
+      return target[key];
+    },
+    set(target, key, newValue) {
+      const dep = getDep(target, key);
+      target[key] = newValue;
+      dep.notify();
+    }
+  })
+}
+```
+
+第7行在源码中使用Reflect.get(...)这个主要是拿来绑定this用的，和Proxy是独立的作用。
+
+
+
+
+
+
+
+20
 
 =
 
